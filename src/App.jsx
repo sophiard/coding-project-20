@@ -8,11 +8,17 @@ function App() {
   const [loading, setLoading] = useState(true); 
   // show loading text
   const [error, setError] = useState(false);
-   // show error if fetch fails
+  // show error if fetch fails
+
+  // Task 2: Dropdown Filter
+  const [filteredTours, setFilteredTours] = useState([]); 
+  // tours shown on what is selected
+  const [selected, setSelected] = useState("All Destinations"); 
+  // selected tour name from dropdown
 
   useEffect(() => {
     fetchTours();
-     // run on page load
+    // run on page load
   }, []);
 
   const fetchTours = async () => {
@@ -21,6 +27,8 @@ function App() {
       const data = await res.json();
       setTours(data); 
       // saves the data
+      setFilteredTours(data); 
+      // show all tours 
       setLoading(false); 
       // stop showing loading
     } catch (err) {
@@ -30,12 +38,41 @@ function App() {
     }
   };
 
+  // Task 2:  destination names
+  const destinationNames = ["All Destinations", ...new Set(tours.map((tour) => tour.name))];
+  // list of all tour names (no repeats)
+
+  // Task 2: dropdown change
+  const handleSelectChange = (value) => {
+    setSelected(value);
+    // update selected destination
+    if (value === "All Destinations") {
+      setFilteredTours(tours); 
+      // show all tours
+    } else {
+      setFilteredTours(tours.filter((tour) => tour.name === value));
+      // show only the tour that is selected 
+    }
+  };
+
   return (
     <main>
       <h1>Tour Explorer</h1>
       {loading && <p>Loading...</p>}
       {error && <p>Something went wrong.</p>}
-      {/* We’ll display tours later */}
+
+      {/* Task 2: Dropdown Filter */}
+      {!loading && !error && (
+        <select value={selected} onChange={(e) => handleSelectChange(e.target.value)}>
+          {destinationNames.map((name, index) => (
+            <option key={index} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+      )}
+
+      {/*  display tours later */}
     </main>
   );
 }
